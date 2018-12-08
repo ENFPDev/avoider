@@ -5,7 +5,12 @@
   "dependencies": {
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
-    "react-scripts": "2.1.1"
+    "react-scripts": "2.1.1",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.83.0",
+    "pixi-timer": "^1.0.1",
+    "pixi.js": "^4.8.1",
+    "prop-types": "15.6.1"
   },
   "scripts": {
     "start": "react-scripts start",
