@@ -1,57 +1,29 @@
-import React, { Component } from 'react';
-import * as Pixi from 'pixi.js';
-import spaceshipSrc from '../../assets/spaceship.png';
-import bitcoinImg from '../../assets/bitcoin.png';
-import cardano from '../../assets/cardano.png';
-import ether from '../../assets/ether.png';
-import nosImg from '../../assets/nos.png';
-import explosionJson from '../../assets/explosion.json';
-import explosionImg from '../../assets/spritesheet.png';
-import backgroundImg from '../../assets/background.jpg';
-import gameoverImg from '../../assets/gameover.jpg';
+import React, { Component } from "react";
+import * as PIXI from "pixi.js";
+import charSrc from "./assets/char.png";
+import bitcoinImg from "./assets/bitcoin.png";
+import ether from "./assets/ether.png";
+// import explosionJson from '../../assets/explosion.json';
+import charMoveJson from "./assets/char_move.json";
+import charMoveImg from "./assets/char_move.png";
+import backgroundImg from "./assets/background.png";
+import gameoverImg from "./assets/gameover.png";
 
-import injectSheet from 'react-jss';
-import PropTypes from 'prop-types';
-import { react } from '@nosplatform/api-functions';
-// import { u, wallet } from '@cityofzion/neon-js';
-// import { unhexlify } from 'binascii';
-import {
-  str2hexstring,
-  int2hex,
-  hexstring2str
-} from '@cityofzion/neon-js/src/utils';
+import PropTypes from "prop-types";
 
-const { injectNOS, nosProps } = react.default;
-
-const styles = {
-  button: {
-    margin: '16px',
-    fontSize: '14px'
-  }
-};
-
-// const bullets = [bullet1, bullet2, bullet3, bullet4];
 const bulletTypes = [];
 
 let newSprite = PIXI.Sprite.fromImage(bitcoinImg);
 bulletTypes.push({
-  name: 'bitcoin',
+  name: "bitcoin",
   sprite: newSprite,
   speed: 1.1,
   radius: Math.sqrt(32 * 32) // 64 / 2
 });
 
-newSprite = PIXI.Sprite.fromImage(cardano);
-bulletTypes.push({
-  name: 'cardano',
-  sprite: newSprite,
-  speed: 4.7,
-  radius: Math.sqrt(12 * 12) // 24 / 2
-});
-
 newSprite = PIXI.Sprite.fromImage(ether);
 bulletTypes.push({
-  name: 'ether',
+  name: "ether",
   sprite: newSprite,
   speed: 2.2,
   radius: Math.sqrt(21 * 21) // 42 / 2
@@ -60,15 +32,15 @@ bulletTypes.push({
 const bulletTypeCnt = bulletTypes.length;
 
 const style = new PIXI.TextStyle({
-  fontFamily: 'Arial',
-  fontSize: 28,
-  fontStyle: 'italic',
-  fontWeight: 'bold',
-  fill: ['#ffffff', '#00ff99'], // gradient
-  stroke: '#4a1850',
+  fontFamily: "Arial",
+  fontSize: 8,
+  // fontStyle: "italic",
+  // fontWeight: "bold",d
+  fill: ["#ffffff", "#00ff99"], // gradient
+  stroke: "#4a1850",
   strokeThickness: 5,
   dropShadow: true,
-  dropShadowColor: '#000000',
+  dropShadowColor: "#000000",
   dropShadowBlur: 4,
   dropShadowAngle: Math.PI / 6,
   dropShadowDistance: 6,
@@ -87,7 +59,7 @@ window.onkeyup = function(e) {
 };
 
 const moveSpeed = 6;
-const stirSpeed = 0.07;
+// const stirSpeed = 0.07;
 const boostSpeed = 20;
 const levelUpBound = 300;
 
@@ -100,8 +72,8 @@ let shieldGuage = 30;
 let score = 0;
 let level = 1;
 let shieldRadius = Math.sqrt(30 * 30); // 60 / 2
-const gameViewWidth = 1200;
-const gameViewHeight = 800;
+const gameViewWidth = 351;
+const gameViewHeight = 184;
 let noHitTime = 30; // 60 tick 1000ms 0.5
 let deltaAfterHit = 0;
 let blinkingFrq = 5;
@@ -110,49 +82,19 @@ let shieldExist = true;
 let gameOver = false;
 let gameStarted = false;
 let init = true;
-let userAccount = '';
+let userAccount = "";
 let coinInserted = false;
 let topScore = null;
 let topScoreUser = null;
 let reward = null;
 // Smart Contract Related
-const scriptHash = '443bff3e184bae170996b55e2b2853868b983ded';
-const invokeInsertCoin = {
-  scriptHash,
-  operation: 'insertcoin',
-  args: [] // user
-}; // and testInvoke Insert
-
-let invokeGameover = {
-  scriptHash,
-  operation: 'gameover',
-  args: [] // user, score
-};
-
-let invokeGetTopScore = {
-  scriptHash,
-  operation: 'gettopscore',
-  args: [] // user, score
-};
-
-let invokeTest = {
-  scriptHash,
-  operation: 'test',
-  args: []
-};
-
-let invokeGetTopScoreUser = {
-  scriptHash,
-  operation: 'gettopscoreuser',
-  args: [] // user, score
-};
 
 let byteArray = [];
 
 class PixiComponent extends Component {
   constructor() {
     super();
-    this.app = new Pixi.Application(gameViewWidth, gameViewHeight);
+    this.app = new PIXI.Application(gameViewWidth, gameViewHeight);
     this.state = {
       player: {},
       stat: {},
@@ -172,8 +114,8 @@ class PixiComponent extends Component {
     // create a new Sprite from an image path
     const background = PIXI.Sprite.fromImage(backgroundImg);
     this.app.stage.addChild(background);
-    let baseTexture = PIXI.BaseTexture.fromImage(explosionImg);
-    let spritesheet = new PIXI.Spritesheet(baseTexture, explosionJson);
+    let baseTexture = PIXI.BaseTexture.fromImage(charSrc);
+    let spritesheet = new PIXI.Spritesheet(baseTexture, charMoveJson);
     // parse the object data and the base texture to create textures for each frame
     spritesheet.parse(() => {
       let textures = Object.keys(spritesheet.textures).map(
@@ -188,7 +130,7 @@ class PixiComponent extends Component {
       this.explosionSprite.play();
     });
     // center the sprite's anchor point
-    this.player = PIXI.Sprite.fromImage(spaceshipSrc);
+    this.player = PIXI.Sprite.fromImage(charSrc);
     this.player.anchor.set(0.5);
     this.player.scale.x = 0.1;
     this.player.scale.y = 0.1;
@@ -198,7 +140,7 @@ class PixiComponent extends Component {
     this.player.y = this.app.screen.height / 2;
     this.app.stage.addChild(this.player);
 
-    this.shield = PIXI.Sprite.fromImage(nosImg);
+    this.shield = PIXI.Sprite.fromImage(bitcoinImg);
     this.shield.anchor.set(0.5);
     this.shield.scale.x = 0.15;
     this.shield.scale.y = 0.15;
@@ -210,21 +152,21 @@ class PixiComponent extends Component {
 
     let yShift = 0;
     if (userAccount) {
-      this.userName = new PIXI.Text('User :' + userAccount, style);
+      this.userName = new PIXI.Text("User :" + userAccount, style);
       this.userName.x = 0;
       this.userName.y = yShift;
       this.app.stage.addChild(this.userName);
       yShift += 28;
     }
 
-    this.scoreBoard = new PIXI.Text('Score :', style);
+    this.scoreBoard = new PIXI.Text("Score :", style);
     this.scoreBoard.x = 0;
     this.scoreBoard.y = yShift;
     this.app.stage.addChild(this.scoreBoard);
     yShift += 28;
 
     this.shieldGuageBar = new PIXI.Text(
-      'Shield :' + shieldGuage.toString(),
+      "Shield :" + shieldGuage.toString(),
       style
     );
     this.shieldGuageBar.x = 0;
@@ -232,7 +174,7 @@ class PixiComponent extends Component {
     this.app.stage.addChild(this.shieldGuageBar);
     yShift += 28;
 
-    this.levelText = new PIXI.Text('Level :' + level.toString(), style);
+    this.levelText = new PIXI.Text("Level :" + level.toString(), style);
     this.levelText.x = 0;
     this.levelText.y = yShift;
     this.app.stage.addChild(this.levelText);
@@ -241,11 +183,11 @@ class PixiComponent extends Component {
     this.contractGetTopScore();
     if (topScore) {
       this.recordScore = new PIXI.Text(
-        'Top Score :' + topScore.toString(),
+        "Top Score :" + topScore.toString(),
         style
       );
     } else {
-      this.recordScore = new PIXI.Text('Top Score : 0', style);
+      this.recordScore = new PIXI.Text("Top Score : 0", style);
     }
 
     this.recordScore.x = 0;
@@ -256,18 +198,18 @@ class PixiComponent extends Component {
     this.contractGetTopScoreUser();
     if (topScoreUser) {
       this.recordScoreUser = new PIXI.Text(
-        'Top Score User :' + topScoreUser.toString(),
+        "Top Score User :" + topScoreUser.toString(),
         style
       );
     } else {
-      this.recordScoreUser = new PIXI.Text('Top Score User : None', style);
+      this.recordScoreUser = new PIXI.Text("Top Score User : None", style);
     }
     this.recordScoreUser.x = 0;
     this.recordScoreUser.y = yShift;
     this.app.stage.addChild(this.recordScoreUser);
     yShift += 28;
 
-    this.startGameBoard = new PIXI.Text('Enter Any Button To Start', style);
+    this.startGameBoard = new PIXI.Text("Enter Any Button To Start", style);
     this.startGameBoard.anchor.set(0.5);
     this.startGameBoard.x = gameViewWidth / 2;
     this.startGameBoard.y = gameViewHeight / 2;
@@ -318,30 +260,30 @@ class PixiComponent extends Component {
     };
 
     //Attach event listeners
-    window.addEventListener('keydown', key.downHandler.bind(key), false);
-    window.addEventListener('keyup', key.upHandler.bind(key), false);
+    window.addEventListener("keydown", key.downHandler.bind(key), false);
+    window.addEventListener("keyup", key.upHandler.bind(key), false);
     return key;
   };
-  rotateToPoint = (mx, my, px, py) => {
-    var self = this;
-    var dist_Y = my - py;
-    var dist_X = mx - px;
-    var angle = Math.atan2(dist_Y, dist_X);
-    //var degrees = angle * 180/ Math.PI;
-    return angle;
-  };
+  // rotateToPoint = (mx, my, px, py) => {
+  //   var self = this;
+  //   var dist_Y = my - py;
+  //   var dist_X = mx - px;
+  //   var angle = Math.atan2(dist_Y, dist_X);
+  //   //var degrees = angle * 180/ Math.PI;
+  //   return angle;
+  // };
   isGameOver = () => {
     if (gameOver === false) return;
     const background = PIXI.Sprite.fromImage(gameoverImg);
     this.app.stage.addChild(background);
 
-    const GameOverBoard = new PIXI.Text('Game Over', style);
+    const GameOverBoard = new PIXI.Text("Game Over", style);
     GameOverBoard.anchor.set(0.5);
     GameOverBoard.x = gameViewWidth / 2;
     GameOverBoard.y = gameViewHeight / 2;
     this.app.stage.addChild(GameOverBoard);
 
-    const finalScore = new PIXI.Text('Score :' + score.toString(), style);
+    const finalScore = new PIXI.Text("Score :" + score.toString(), style);
     finalScore.anchor.set(0.5);
     finalScore.x = gameViewWidth / 2;
     finalScore.y = gameViewHeight / 2 + 28;
@@ -484,42 +426,37 @@ class PixiComponent extends Component {
     if (pkeys[87]) {
       //W key
       let nextX =
-        this.player.position.x +
-        Math.cos(this.player.rotation - Math.PI / 2) * moveSpeed;
-      let nextY =
-        this.player.position.y +
-        Math.sin(this.player.rotation - Math.PI / 2) * moveSpeed;
-
+        this.player.position.x + moveSpeed;
       if (nextX < maxX && nextX > 0) {
         this.shield.position.x = this.player.position.x = nextX;
-      }
-      if (nextY < maxY && nextY > 0) {
-        this.shield.position.y = this.player.position.y = nextY;
       }
     }
     if (pkeys[83]) {
       //S key
       let nextX = (this.shield.position.x =
-        this.player.position.x +
-        Math.cos(this.player.rotation - Math.PI / 2) * -moveSpeed);
-      let nextY =
-        this.player.position.y +
-        Math.sin(this.player.rotation - Math.PI / 2) * -moveSpeed;
+        this.player.position.x - moveSpeed);
 
       if (nextX < maxX && nextX > 0) {
         this.shield.position.x = this.player.position.x = nextX;
       }
+    }
+    if (pkeys[68]) {
+      //S key
+      let nextY = (this.shield.position.y =
+        this.player.position.y + moveSpeed);
+
       if (nextY < maxY && nextY > 0) {
         this.shield.position.y = this.player.position.y = nextY;
       }
     }
-    if (pkeys[68]) {
-      //a key
-      this.player.rotation += stirSpeed;
-    }
     if (pkeys[65]) {
       //d key
-      this.player.rotation -= stirSpeed;
+      let nextY = (this.shield.position.y =
+        this.player.position.y - moveSpeed);
+
+      if (nextY < maxY && nextY > 0) {
+        this.shield.position.y = this.player.position.y = nextY;
+      }
     }
     if (pkeys[32]) {
       if (shieldGuage >= shieldMaxGuage) shieldGuage = shieldMaxGuage;
@@ -565,9 +502,9 @@ class PixiComponent extends Component {
               // console.log("Game Over");
               gameOver = true;
             } else {
-              if (element.name === 'bitcoin') shieldGuage -= 50;
-              else if (element.name === 'ether') shieldGuage -= 30;
-              else if (element.name === 'cardano') shieldGuage -= 5;
+              if (element.name === "bitcoin") shieldGuage -= 50;
+              else if (element.name === "ether") shieldGuage -= 30;
+              else if (element.name === "cardano") shieldGuage -= 5;
 
               if (shieldGuage <= 0) {
                 shieldGuage = 0;
@@ -602,9 +539,9 @@ class PixiComponent extends Component {
 
     // Status
     score += 1;
-    this.shieldGuageBar.text = 'NOS Guage :' + shieldGuage.toString();
-    this.scoreBoard.text = 'Score : ' + score.toString();
-    this.levelText.text = 'Level : ' + level.toString();
+    this.shieldGuageBar.text = "NOS Guage :" + shieldGuage.toString();
+    this.scoreBoard.text = "Score : " + score.toString();
+    this.levelText.text = "Level : " + level.toString();
     if (score > level * levelUpBound) {
       level++;
       if (this.bullets) {
@@ -624,103 +561,14 @@ class PixiComponent extends Component {
   }
   componentWillMount() {}
   contractGetAddress = async () => {
-    console.log('contractGetAddress');
-    await this.props.nos.getAddress().then(data => {
-      userAccount = data;
-    });
   };
   contractInsertCoin = async () => {
-    debugger;
-    console.log('contractInsertCoin');
-    this.props.nos.getAddress();
-    if (userAccount) {
-      invokeInsertCoin.args[0] = userAccount;
-      try {
-        await this.props.nos.invoke(invokeInsertCoin);
-        coinInserted = true;
-      } catch (e) {
-        console.log(e);
-        return;
-      }
-    }
   };
   contractGameOver = async finalScore => {
-    console.log('contractGameOver');
-    if (userAccount) {
-      invokeGameover.args[0] = userAccount;
-      invokeGameover.args[1] = finalScore;
-      try {
-        await this.props.nos.invoke(invokeGameover);
-      } catch (e) {
-        console.log(e);
-        return;
-      }
-    }
-  };
-  testContract = async () => {
-    this.props.nos.testInvoke(invokeTest).then(data => {
-      console.log(JSON.stringify(data));
-    });
   };
   contractGetTopScore = async () => {
-    console.log('contractGetTopScore');
-    this.props.nos.testInvoke(invokeGetTopScore).then(data => {
-      console.log(JSON.stringify(data));
-    });
-    // this.props.nos
-    //   .getStorage({ scriptHash, key: 'topscore', encodeInput:false, decodeOutput:false})
-    //   .then(data => console.log(JSON.stringify(data)))
-    //   .catch(err => alert(`Error: ${err.message}`));
   };
   contractGetTopScoreUser = async () => {
-    // console.log("contractGetTopScoreUser");
-    // this.props.nos.testInvoke(invokeGetTopScoreUser).then(data => {
-    //   console.log(JSON.stringify(data));
-    // });
-    this.props.nos
-      .getStorage({ scriptHash, key: str2hexstring('topscoreuser') })
-      .then(data => console.log(JSON.stringify(data)))
-      .catch(err => console.log(`Error: ${err.message}`));
-  };
-  deserialize = rawData => {
-    // Split into bytes of 2 characters
-    const rawSplitted = rawData.match(/.{2}/g);
-
-    // The size of the length of your array.
-    // It's in hex so the length is max 255.
-    const collectionLenLen = parseInt(rawSplitted[0], 16);
-    let offset = collectionLenLen + 1; // offset is malleable
-
-    // Get the amount of elements in your array.
-    const collectionLen = parseInt(concatBytes(rawSplitted, 1, offset), 16);
-
-    const rawArray = [];
-
-    for (let i = 0; i < collectionLen; i += 1) {
-      const incOffset = offset + 1;
-      // The size of the length of your item.
-      // It's in hex so the length is max 255.
-      const itemLenLen = parseInt(
-        concatBytes(rawSplitted, offset, incOffset),
-        16
-      );
-      const offsetItemLenLen = incOffset + itemLenLen;
-
-      // Get the length of your item
-      const itemLen = parseInt(
-        concatBytes(rawSplitted, incOffset, offsetItemLenLen),
-        16
-      );
-      const offsetItemLen = offsetItemLenLen + itemLen;
-
-      // Store to rawArray
-      rawArray.push(concatBytes(rawSplitted, offsetItemLenLen, offsetItemLen));
-
-      // Abuse malleable offset
-      offset = offsetItemLen;
-    }
-
-    return rawArray;
   };
   render() {
     let component = this;
@@ -735,8 +583,7 @@ class PixiComponent extends Component {
 }
 
 PixiComponent.propTypes = {
-  classes: PropTypes.objectOf(PropTypes.any).isRequired,
-  nos: nosProps.isRequired
+  classes: PropTypes.objectOf(PropTypes.any).isRequired
 };
 
-export default injectNOS(injectSheet(styles)(PixiComponent));
+export default PixiComponent;
